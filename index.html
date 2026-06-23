@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#2C3A2A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>AFIAR</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --vd:#2C3A2A;--vm:#3E5438;--vo:#6B7C45;
+  --be:#C4A882;--bc:#F0E6D3;--bg:#FAF5EE;
+  --ou:#C9922A;--oc:#E8B84B;--tr:#8B5E3C;
+  --br:#FDFAF6;--sh:rgba(44,58,42,0.13);
+  --r:16px;--rs:10px;
+  --sb:env(safe-area-inset-bottom,0px);
+  --st:env(safe-area-inset-top,0px);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{height:100%;height:-webkit-fill-available}
+body{height:100%;height:-webkit-fill-available;background:var(--bg);font-family:'Lato',sans-serif;color:var(--vd);overflow:hidden;-webkit-text-size-adjust:100%;touch-action:manipulation}
+button,input,textarea{font-family:inherit;-webkit-appearance:none;appearance:none;border:none;outline:none}
+textarea{resize:none}
+
+/* APP */
+#app{position:fixed;inset:0;display:flex;flex-direction:column;padding-top:var(--st)}
+.screen{display:none;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding-bottom:calc(64px + var(--sb));flex:1}
+.screen.active{display:block}
+
+/* SPLASH */
+#splash{position:fixed;inset:0;z-index:9999;background:var(--vd);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .6s,visibility .6s}
+#splash.off{opacity:0;visibility:hidden;pointer-events:none}
+.spl-logo{width:84px;height:84px;background:linear-gradient(135deg,var(--ou),var(--oc));border-radius:20px;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:32px;font-weight:700;color:var(--vd);animation:pulso 1.8s ease-in-out infinite}
+@keyframes pulso{0%,100%{box-shadow:0 0 0 0 rgba(201,146,42,.4)}50%{box-shadow:0 0 0 14px rgba(201,146,42,0)}}
+.spl-nome{font-family:'Cinzel',serif;font-size:24px;font-weight:700;color:var(--oc);letter-spacing:6px}
+.spl-slogan{font-family:'Lora',serif;font-size:12px;font-style:italic;color:rgba(240,230,211,.6);text-align:center;padding:0 36px;line-height:1.5}
+.spl-bar{width:130px;height:3px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;margin-top:8px}
+.spl-fill{height:100%;background:linear-gradient(90deg,var(--ou),var(--oc));animation:barra 2.3s ease forwards}
+@keyframes barra{from{width:0}to{width:100%}}
+
+/* TOAST */
+#toast{position:fixed;top:calc(var(--st) + 10px);left:50%;transform:translateX(-50%) translateY(-80px);background:var(--vd);color:var(--oc);padding:9px 20px;border-radius:26px;font-family:'Cinzel',serif;font-size:11px;font-weight:700;letter-spacing:.5px;z-index:8888;white-space:nowrap;box-shadow:0 4px 18px rgba(44,58,42,.35);transition:transform .35s cubic-bezier(.34,1.56,.64,1);max-width:calc(100vw - 32px);overflow:hidden;text-overflow:ellipsis}
+#toast.on{transform:translateX(-50%) translateY(0)}
+
+/* HERO */
+.hero{position:relative;height:255px;overflow:hidden;flex-shrink:0}
+.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:opacity 1s}
+.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(44,58,42,.38) 0%,rgba(44,58,42,.68) 45%,rgba(44,58,42,.97) 100%)}
+.hero-cont{position:relative;z-index:2;padding:14px 16px 18px;height:100%;display:flex;flex-direction:column;justify-content:space-between}
+.hero-top{display:flex;align-items:center;justify-content:space-between}
+.hero-marca{display:flex;align-items:center;gap:8px}
+.hero-ico{width:32px;height:32px;background:linear-gradient(135deg,var(--ou),var(--oc));border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:var(--vd)}
+.hero-nome{font-family:'Cinzel',serif;font-size:14px;font-weight:600;color:var(--oc);letter-spacing:3px}
+.hero-notif{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer}
+.hero-ola{font-family:'Lora',serif;font-size:12px;color:rgba(240,230,211,.75);margin-bottom:2px}
+.hero-t{font-family:'Cinzel',serif;font-size:19px;font-weight:700;color:var(--br);line-height:1.25}
+.hero-sub{font-size:11px;color:rgba(240,230,211,.55);margin-top:4px;font-style:italic}
+.dots{display:flex;gap:5px;margin-top:10px}
+.dot{width:5px;height:5px;border-radius:3px;background:rgba(255,255,255,.28);cursor:pointer;transition:all .3s}
+.dot.on{width:16px;background:var(--oc)}
+
+/* XP */
+.xp{background:var(--vd);padding:8px 14px;display:flex;align-items:center;gap:9px}
+.xp-b{background:linear-gradient(135deg,var(--ou),var(--oc));color:var(--vd);font-family:'Cinzel',serif;font-size:8px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;letter-spacing:1px;flex-shrink:0}
+.xp-t{flex:1;height:5px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden}
+.xp-f{height:100%;background:linear-gradient(90deg,var(--ou),var(--oc));border-radius:3px}
+.xp-n{font-size:10px;font-weight:700;color:var(--oc);white-space:nowrap;flex-shrink:0}
+
+/* SEC */
+.sec{padding:14px 14px 8px;display:flex;align-items:center;justify-content:space-between}
+.sec-t{font-family:'Cinzel',serif;font-size:10px;font-weight:700;color:var(--vd);letter-spacing:2px;text-transform:uppercase}
+.sec-l{font-size:11px;color:var(--ou);font-weight:700;cursor:pointer;padding:4px 0}
+
+/* VERSÍCULO CARD */
+.vc{margin:0 12px 14px;border-radius:var(--r);overflow:hidden;position:relative;min-height:155px;cursor:pointer}
+.vc-bg{position:absolute;inset:0;background-size:cover;background-position:center}
+.vc-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(62,84,56,.9) 0%,rgba(139,94,60,.86) 100%)}
+.vc-cont{position:relative;z-index:2;padding:16px}
+.vc-ey{display:flex;align-items:center;gap:7px;margin-bottom:9px}
+.vc-ico{width:24px;height:24px;background:rgba(201,146,42,.25);border:1px solid rgba(201,146,42,.38);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px}
+.vc-tag{font-size:9px;font-weight:700;color:var(--oc);letter-spacing:2px;text-transform:uppercase}
+.vc-txt{font-family:'Lora',serif;font-size:13px;line-height:1.65;color:var(--br);font-style:italic;margin-bottom:9px}
+.vc-ref{font-family:'Cinzel',serif;font-size:10px;font-weight:600;color:var(--oc);letter-spacing:.5px}
+.vc-acao{display:flex;align-items:center;gap:5px;margin-top:10px;font-size:9px;font-weight:700;color:rgba(240,230,211,.6);letter-spacing:1px}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 12px;margin-bottom:12px}
+.stat{background:var(--br);border-radius:13px;padding:12px 6px;text-align:center;border:1px solid rgba(107,124,69,.11);box-shadow:0 2px 8px var(--sh);cursor:pointer}
+.stat-i{font-size:19px;margin-bottom:2px}
+.stat-v{font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:var(--vd)}
+.stat-l{font-size:9px;font-weight:700;color:var(--vo);letter-spacing:1px;text-transform:uppercase;margin-top:1px}
+
+/* PALAVRA */
+.pal{margin:0 12px 14px;background:var(--vd);border-radius:var(--r);padding:13px 14px;display:flex;align-items:center;gap:11px;cursor:pointer;box-shadow:0 3px 12px var(--sh);min-height:60px}
+.pal-h{font-size:26px;color:var(--oc);direction:rtl;font-family:serif;flex-shrink:0;min-width:42px;text-align:center}
+.pal-i{flex:1;min-width:0}
+.pal-l{font-size:8px;font-weight:700;color:rgba(201,146,42,.6);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px}
+.pal-tr{font-family:'Lora',serif;font-size:13px;font-style:italic;color:rgba(240,230,211,.9)}
+.pal-h2{font-size:9px;color:rgba(201,146,42,.5);font-weight:700;margin-top:1px}
+.pal-a{font-size:19px;color:var(--oc);flex-shrink:0}
+
+/* AÇÕES */
+.acoes{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:0 12px;margin-bottom:12px}
+.acao{background:var(--br);border-radius:var(--r);padding:14px 12px;border:1px solid rgba(107,124,69,.11);box-shadow:0 2px 9px var(--sh);cursor:pointer;display:flex;flex-direction:column;gap:5px;min-height:106px;transition:transform .15s}
+.acao:active{transform:scale(.97)}
+.acao.d{background:var(--vd);border-color:transparent}
+.acao-i{font-size:22px}
+.acao-t{font-family:'Cinzel',serif;font-size:11px;font-weight:600;color:var(--vd);line-height:1.3}
+.acao.d .acao-t{color:var(--oc)}
+.acao-s{font-size:10px;color:#999;line-height:1.3}
+.acao.d .acao-s{color:rgba(240,230,211,.5)}
+.acao-a{font-size:13px;color:var(--ou);margin-top:auto}
+.acao.d .acao-a{color:var(--oc)}
+
+/* TRILHAS */
+.trilhas{display:flex;gap:10px;padding:0 12px 4px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.trilhas::-webkit-scrollbar{display:none}
+.trilha{min-width:120px;background:var(--br);border-radius:13px;padding:12px 11px;border:1px solid rgba(107,124,69,.13);box-shadow:0 2px 8px var(--sh);cursor:pointer;flex-shrink:0;transition:transform .15s}
+.trilha:active{transform:scale(.96)}
+.trilha.lock{opacity:.42}
+.tl-i{font-size:22px;margin-bottom:7px}
+.tl-nv{font-size:8px;font-weight:700;color:var(--oc);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:1px}
+.tl-n{font-family:'Cinzel',serif;font-size:11px;font-weight:600;color:var(--vd);line-height:1.3}
+.tl-bar{margin-top:7px;height:3px;background:rgba(107,124,69,.13);border-radius:2px;overflow:hidden}
+.tl-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--vo),var(--oc))}
+.tl-pct{font-size:9px;color:var(--vo);font-weight:700;margin-top:3px}
+
+/* ESTUDOS */
+.eh{background:var(--vd);padding:calc(var(--st) + 50px) 16px 16px}
+.eh-t{font-family:'Cinzel',serif;font-size:19px;font-weight:700;color:var(--oc);margin-bottom:3px}
+.eh-s{font-size:12px;color:rgba(240,230,211,.6);font-style:italic}
+.filtros{display:flex;gap:7px;padding:11px 12px;overflow-x:auto;scrollbar-width:none}
+.filtros::-webkit-scrollbar{display:none}
+.fil{padding:6px 13px;border-radius:20px;font-size:11px;font-weight:700;border:1.5px solid rgba(107,124,69,.2);background:var(--br);color:var(--vm);cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .2s}
+.fil.on{background:var(--vd);color:var(--oc);border-color:transparent}
+.ecard{margin:0 12px 9px;background:var(--br);border-radius:var(--r);padding:14px 13px;border:1px solid rgba(107,124,69,.1);box-shadow:0 2px 7px var(--sh);cursor:pointer;display:flex;gap:11px;transition:transform .15s}
+.ecard:active{transform:scale(.98)}
+.eico{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.einf{flex:1;min-width:0}
+.ecat{font-size:9px;font-weight:700;color:var(--oc);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px}
+.etit{font-family:'Cinzel',serif;font-size:12px;font-weight:600;color:var(--vd);margin-bottom:2px;line-height:1.3}
+.edesc{font-size:11px;color:#888;line-height:1.35}
+.etags{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}
+.tag{font-size:9px;font-weight:700;padding:2px 9px;border-radius:9px}
+.tv{background:rgba(107,124,69,.11);color:var(--vm)}
+.to{background:rgba(201,146,42,.11);color:var(--ou)}
+.tt{background:rgba(139,94,60,.11);color:var(--tr)}
+
+/* ═══ BÍBLIA PARALELA ═══ */
+.bh{background:var(--vd);padding:calc(var(--st) + 50px) 16px 14px}
+.bh-t{font-family:'Cinzel',serif;font-size:19px;font-weight:700;color:var(--oc);margin-bottom:3px}
+.bh-s{font-size:12px;color:rgba(240,230,211,.6);font-style:italic}
+
+/* Barra de busca sticky */
+.bbusca{padding:10px 12px;background:var(--bg);position:sticky;top:0;z-index:20;border-bottom:1px solid rgba(107,124,69,.09);display:flex;gap:7px}
+.bib-in{flex:1;padding:10px 13px;border:1.5px solid rgba(107,124,69,.2);border-radius:11px;font-size:16px;background:var(--br);color:var(--vd)}
+.bib-in:focus{border-color:var(--vo)}
+.bib-bt{padding:10px 12px;background:var(--vd);color:var(--oc);border-radius:11px;font-family:'Cinzel',serif;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;min-width:44px}
+
+/* Estado de carregamento */
+.bib-loading{text-align:center;padding:28px 16px;color:#aaa;font-family:'Lora',serif;font-size:13px;font-style:italic;line-height:1.7}
+.bib-spinner{width:32px;height:32px;border:3px solid rgba(107,124,69,.15);border-top-color:var(--vo);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Favoritos grid 2 col */
+.fav-sec{padding:12px 12px 4px}
+.fav-sec-t{font-family:'Cinzel',serif;font-size:10px;font-weight:700;color:var(--vo);letter-spacing:2px;text-transform:uppercase;margin-bottom:9px}
+.fav-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.fav{background:var(--br);border-radius:11px;padding:11px 10px;border:1px solid rgba(107,124,69,.1);cursor:pointer;transition:transform .15s}
+.fav:active{transform:scale(.96)}
+.fav-r{font-family:'Cinzel',serif;font-size:10px;font-weight:700;color:var(--ou);margin-bottom:3px}
+.fav-p{font-family:'Lora',serif;font-size:11px;color:#888;font-style:italic;line-height:1.35}
+
+/* Tabs AT/NT */
+.bib-tabs{display:flex;border-radius:10px;overflow:hidden;border:1.5px solid rgba(107,124,69,.18);margin:12px 12px 9px}
+.bib-tab{flex:1;padding:9px;text-align:center;font-family:'Cinzel',serif;font-size:10px;font-weight:600;letter-spacing:1px;background:var(--br);color:var(--vm);cursor:pointer;transition:all .2s}
+.bib-tab.on{background:var(--vd);color:var(--oc)}
+
+/* Grid livros 4 col */
+.lgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:0 12px 8px}
+.lbtn{background:var(--br);border:1px solid rgba(107,124,69,.13);border-radius:9px;padding:8px 4px;text-align:center;cursor:pointer;transition:all .15s}
+.lbtn:active,.lbtn.on{background:var(--vd);border-color:transparent}
+.lsig{font-family:'Cinzel',serif;font-size:10px;font-weight:700;color:var(--vd);letter-spacing:.5px}
+.lbtn:active .lsig,.lbtn.on .lsig{color:var(--oc)}
+.lnm{font-size:8px;color:#aaa;margin-top:1px;line-height:1.2}
+.lbtn:active .lnm,.lbtn.on .lnm{color:rgba(240,230,211,.5)}
+
+/* Capítulos */
+.caps-h{padding:10px 14px 5px;display:flex;align-items:center;justify-content:space-between}
+.caps-ht{font-family:'Cinzel',serif;font-size:12px;font-weight:600;color:var(--vd)}
+.caps-bk{font-size:12px;color:var(--ou);font-weight:700;cursor:pointer;padding:4px 0}
+.cgrid{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 10px}
+.cbtn{width:40px;height:40px;border-radius:9px;background:var(--br);border:1px solid rgba(107,124,69,.13);font-family:'Cinzel',serif;font-size:12px;font-weight:600;color:var(--vd);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.cbtn:active,.cbtn.on{background:var(--ou);border-color:transparent;color:var(--vd)}
+
+/* Resultado paralela */
+.pres{padding:12px}
+.pref{background:var(--vd);border-radius:var(--r);padding:13px;text-align:center;margin-bottom:12px}
+.pref-t{font-family:'Cinzel',serif;font-size:14px;font-weight:700;color:var(--oc)}
+.pref-s{font-size:10px;color:rgba(240,230,211,.5);margin-top:2px}
+.pacoes{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px}
+.pbtn{padding:9px 4px;background:var(--br);border:1px solid rgba(107,124,69,.16);border-radius:9px;font-size:10px;font-weight:700;color:var(--vm);cursor:pointer;text-align:center;font-family:'Cinzel',serif;transition:all .15s}
+.pbtn:active{background:var(--vd);color:var(--oc);border-color:transparent}
+.vcard{background:var(--br);border-radius:var(--r);margin-bottom:9px;overflow:hidden;border:1px solid rgba(107,124,69,.09);box-shadow:0 2px 7px var(--sh)}
+.vh{padding:9px 13px;display:flex;align-items:center;gap:7px;background:rgba(107,124,69,.04)}
+.vbadge{font-family:'Cinzel',serif;font-size:11px;font-weight:700;letter-spacing:1px;padding:3px 11px;border-radius:20px}
+.acf{background:rgba(62,84,56,.1);color:var(--vm)}
+.ara{background:rgba(139,94,60,.1);color:var(--tr)}
+.nvi{background:rgba(201,146,42,.12);color:var(--ou)}
+.vnome{font-size:10px;color:#bbb;font-style:italic;flex:1}
+.vcopy{background:none;border:none;font-size:14px;cursor:pointer;padding:4px;border-radius:6px;min-width:32px;min-height:32px}
+.vtxt{padding:10px 13px 13px;font-family:'Lora',serif;font-size:14px;line-height:1.75;color:var(--vd);font-style:italic;border-top:1px solid rgba(107,124,69,.07)}
+.dbox{background:rgba(201,146,42,.06);border:1px solid rgba(201,146,42,.16);border-radius:var(--rs);padding:11px 13px;margin-bottom:12px}
+.dt{font-size:9px;font-weight:700;color:var(--ou);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px}
+.dd{font-size:12px;color:var(--vd);line-height:1.6}
+
+/* Nav entre versículos */
+.vnav{display:flex;align-items:center;justify-content:space-between;padding:0 12px 12px;gap:8px}
+.vnav-btn{flex:1;padding:9px;background:var(--br);border:1px solid rgba(107,124,69,.15);border-radius:10px;font-family:'Cinzel',serif;font-size:10px;font-weight:600;color:var(--vm);cursor:pointer;text-align:center;transition:all .15s}
+.vnav-btn:active{background:var(--vd);color:var(--oc);border-color:transparent}
+.vnav-ref{font-family:'Cinzel',serif;font-size:11px;color:var(--ou);font-weight:700;text-align:center;flex:2}
+
+/* LABORATÓRIO */
+.lah{background:linear-gradient(135deg,var(--vd),var(--tr));padding:calc(var(--st) + 50px) 16px 18px;text-align:center}
+.lah-t{font-family:'Cinzel',serif;font-size:18px;font-weight:700;color:var(--oc);margin-bottom:3px}
+.lah-s{font-size:12px;color:rgba(240,230,211,.6);font-style:italic;line-height:1.45}
+.lav{margin:13px 12px 0;background:var(--br);border-radius:var(--r);padding:14px;border-left:4px solid var(--ou);box-shadow:0 2px 9px var(--sh)}
+.lav-l{font-size:9px;font-weight:700;color:var(--ou);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.lav-t{font-family:'Lora',serif;font-size:13px;line-height:1.7;color:var(--vd);font-style:italic}
+.lav-r{font-family:'Cinzel',serif;font-size:10px;color:var(--ou);margin-top:6px;font-weight:600}
+.oicas{padding:11px 12px 0}
+.oica{background:var(--br);border-radius:var(--r);margin-bottom:9px;overflow:hidden;border:1px solid rgba(107,124,69,.1);box-shadow:0 2px 7px var(--sh)}
+.oh{padding:12px 13px;display:flex;align-items:center;gap:10px;cursor:pointer;min-height:54px}
+.ol{width:34px;height:34px;border-radius:9px;background:var(--vd);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:14px;font-weight:700;color:var(--oc)}
+.oi{flex:1;min-width:0}
+.on2{font-family:'Cinzel',serif;font-size:12px;font-weight:600;color:var(--vd)}
+.od{font-size:10px;color:#999;margin-top:1px;line-height:1.3}
+.ock{font-size:17px;color:rgba(107,124,69,.22);transition:color .25s;flex-shrink:0}
+.ock.ok{color:var(--vo)}
+.ob{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.ob.open{max-height:220px}
+.ota{width:100%;padding:4px 13px 13px;font-family:'Lato',sans-serif;font-size:15px;line-height:1.6;color:var(--vd);background:transparent;min-height:95px}
+.ota::placeholder{color:#ccc;font-size:12px}
+.lenv{margin:13px 12px 5px;width:calc(100% - 24px);padding:14px;background:linear-gradient(135deg,var(--vd),var(--vm));color:var(--oc);font-family:'Cinzel',serif;font-size:12px;font-weight:600;letter-spacing:1px;border-radius:var(--r);cursor:pointer;box-shadow:0 4px 13px rgba(44,58,42,.22);min-height:48px}
+
+/* DESAFIOS */
+.deh{background:linear-gradient(135deg,var(--tr),var(--ou));padding:calc(var(--st) + 50px) 16px 18px}
+.deh-t{font-family:'Cinzel',serif;font-size:19px;font-weight:700;color:var(--br);margin-bottom:3px}
+.deh-s{font-size:12px;color:rgba(255,255,255,.65);font-style:italic}
+.dcard{margin:10px 12px 0;background:var(--br);border-radius:var(--r);overflow:hidden;border:1px solid rgba(107,124,69,.1);box-shadow:0 2px 9px var(--sh);cursor:pointer;transition:transform .15s}
+.dcard:active{transform:scale(.98)}
+.dtop{padding:14px 13px;display:flex;align-items:center;gap:11px}
+.dico{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0}
+.dinf{flex:1;min-width:0}
+.dtipo{font-size:9px;font-weight:700;color:var(--ou);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px}
+.dtit{font-family:'Cinzel',serif;font-size:12px;font-weight:600;color:var(--vd);margin-bottom:2px;line-height:1.3}
+.ddesc{font-size:11px;color:#888;line-height:1.3}
+.dfooter{background:var(--bc);padding:8px 13px;display:flex;align-items:center;justify-content:space-between}
+.dxp{font-size:11px;font-weight:700;color:var(--vm)}
+.dbtn{padding:6px 14px;background:var(--vd);color:var(--oc);font-size:10px;font-weight:700;border-radius:18px;font-family:'Cinzel',serif;letter-spacing:.5px;cursor:pointer}
+
+/* PERFIL */
+.ph{background:var(--vd);padding:calc(var(--st) + 46px) 16px 26px;text-align:center}
+.pav{width:76px;height:76px;border-radius:50%;background:linear-gradient(135deg,var(--ou),var(--oc));display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:26px;font-weight:700;color:var(--vd);margin:0 auto 11px;border:3px solid rgba(201,146,42,.32)}
+.pnome{font-family:'Cinzel',serif;font-size:15px;font-weight:700;color:var(--oc);margin-bottom:4px}
+.pnv{display:inline-block;padding:3px 13px;background:rgba(201,146,42,.16);border:1px solid rgba(201,146,42,.32);border-radius:20px;font-size:9px;font-weight:700;color:var(--oc);letter-spacing:1px}
+.psts{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.07);margin-top:16px;border-radius:11px;overflow:hidden}
+.ps{background:rgba(255,255,255,.04);padding:10px 6px;text-align:center}
+.psv{font-family:'Cinzel',serif;font-size:15px;font-weight:700;color:var(--oc)}
+.psl{font-size:8px;color:rgba(240,230,211,.5);letter-spacing:1px;text-transform:uppercase;margin-top:1px}
+.psec{padding:13px 12px 0}
+.psect{font-family:'Cinzel',serif;font-size:9px;font-weight:700;color:var(--vm);letter-spacing:2px;text-transform:uppercase;margin-bottom:9px}
+.meds{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.med{background:var(--br);border-radius:10px;padding:9px 5px;text-align:center;border:1px solid rgba(107,124,69,.09)}
+.med-i{font-size:21px;margin-bottom:2px}
+.med-n{font-size:8px;font-weight:700;color:var(--vm);line-height:1.3}
+.med.lock{opacity:.28;filter:grayscale(1)}
+.pmitem{background:var(--br);border-radius:var(--rs);padding:13px;display:flex;align-items:center;gap:11px;margin-bottom:7px;cursor:pointer;border:1px solid rgba(107,124,69,.08);transition:transform .15s}
+.pmitem:active{transform:scale(.98)}
+.pmi-i{font-size:19px;flex-shrink:0}
+.pmi-f{flex:1;min-width:0}
+.pmi-t{font-size:13px;font-weight:700;color:var(--vd)}
+.pmi-s{font-size:10px;color:#aaa;margin-top:1px}
+.pmi-a{font-size:17px;color:#ddd;flex-shrink:0}
+
+/* NAVBAR */
+#nav{position:fixed;bottom:0;left:0;right:0;z-index:1000;background:var(--br);border-top:1px solid rgba(107,124,69,.09);display:flex;padding-bottom:var(--sb);box-shadow:0 -2px 14px rgba(44,58,42,.07)}
+.nb{flex:1;padding:8px 3px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;background:none;min-height:52px}
+.nbi{font-size:19px;transition:transform .2s;display:block}
+.nbl{font-size:8px;font-weight:700;letter-spacing:.5px;color:#bbb;transition:color .2s;display:block}
+.nb.on .nbi{transform:translateY(-2px)}
+.nb.on .nbl{color:var(--vm)}
+.nbar{position:absolute;top:0;height:2px;background:var(--oc);border-radius:0 0 2px 2px;transition:left .3s cubic-bezier(.4,0,.2,1),width .3s}
+
+/* SHEET */
+.sbg{position:fixed;inset:0;z-index:5000;background:rgba(44,58,42,.42);backdrop-filter:blur(4px);display:none;align-items:flex-end}
+.sbg.on{display:flex}
+.sheet{width:100%;background:var(--bg);border-radius:21px 21px 0 0;padding:9px 16px calc(var(--sb) + 22px);max-height:80vh;overflow-y:auto;animation:sobe .3s cubic-bezier(.4,0,.2,1)}
+@keyframes sobe{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sgrip{width:32px;height:4px;background:rgba(107,124,69,.18);border-radius:2px;margin:0 auto 13px}
+.st{font-family:'Cinzel',serif;font-size:14px;font-weight:700;color:var(--vd);margin-bottom:2px}
+.ss{font-size:11px;color:#aaa;margin-bottom:14px;font-style:italic}
+.hbox{background:var(--vd);border-radius:var(--r);padding:18px;margin-bottom:13px;text-align:center}
+.hletra{font-size:40px;color:var(--oc);direction:rtl;font-family:serif;margin-bottom:4px}
+.htr{font-family:'Lora',serif;font-size:14px;font-style:italic;color:rgba(240,230,211,.8)}
+.hpron{font-size:11px;color:rgba(240,230,211,.42);letter-spacing:1px;margin-top:2px}
+.igrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.icard{background:var(--br);border-radius:var(--rs);padding:11px;border:1px solid rgba(107,124,69,.09)}
+.ilabel{font-size:8px;font-weight:700;color:var(--ou);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px}
+.ival{font-size:12px;font-weight:600;color:var(--vd);line-height:1.4}
+.sp{height:8px}
+.sp2{height:13px}
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <div class="spl-logo">A</div>
+  <div class="spl-nome">AFIAR</div>
+  <div class="spl-slogan">"Afiando a mente para compreender as Escrituras."</div>
+  <div class="spl-bar"><div class="spl-fill"></div></div>
+</div>
+<div id="toast"></div>
+
+<div id="app">
+
+<!-- HOME -->
+<div class="screen active" id="s-home">
+  <div class="hero"><div class="hero-bg" id="hbg"></div>
+    <div class="hero-cont">
+      <div class="hero-top">
+        <div class="hero-marca"><div class="hero-ico">A</div><div class="hero-nome">AFIAR</div></div>
+        <div class="hero-notif" onclick="t('🔔 Nenhuma notificação')">🔔</div>
+      </div>
+      <div>
+        <div class="hero-ola">Shalom, Marcos 👋</div>
+        <div class="hero-t">Pronto para afiar<br>a mente hoje?</div>
+        <div class="hero-sub">"Afiando a mente para compreender as Escrituras."</div>
+        <div class="dots"><div class="dot on" onclick="mH(0)"></div><div class="dot" onclick="mH(1)"></div><div class="dot" onclick="mH(2)"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="xp"><div class="xp-b">OBSERVADOR · NV 1</div><div class="xp-t"><div class="xp-f" style="width:34%"></div></div><div class="xp-n">340/1000 XP</div></div>
+  <div class="sec" style="padding-top:13px"><div class="sec-t">Versículo do Dia</div><div class="sec-l" onclick="ir('s-biblia');bRef('pv 2:6')">Ver paralelo →</div></div>
+  <div class="vc" onclick="ir('s-biblia');bRef('pv 2:6')">
+    <div class="vc-bg" id="vcbg"></div>
+    <div class="vc-cont">
+      <div class="vc-ey"><div class="vc-ico">📖</div><div class="vc-tag">Hoje · Sabedoria</div></div>
+      <div class="vc-txt">"Porque o SENHOR dá a sabedoria; da sua boca procedem o conhecimento e o entendimento."</div>
+      <div class="vc-ref">Provérbios 2:6 — חָכְמָה (Chokmah)</div>
+      <div class="vc-acao"><span>🔍</span> VER NAS 3 VERSÕES</div>
+    </div>
+  </div>
+  <div class="stats">
+    <div class="stat" onclick="t('🔥 7 dias seguidos!')"><div class="stat-i">🔥</div><div class="stat-v">7</div><div class="stat-l">Dias</div></div>
+    <div class="stat" onclick="t('📚 12 estudos!')"><div class="stat-i">📚</div><div class="stat-v">12</div><div class="stat-l">Estudos</div></div>
+    <div class="stat" onclick="ir('s-perfil')"><div class="stat-i">🏅</div><div class="stat-v">3</div><div class="stat-l">Medalhas</div></div>
+  </div>
+  <div class="sec"><div class="sec-t">Palavra do Dia</div></div>
+  <div class="pal" onclick="abrirPal()">
+    <div class="pal-h">חָכְמָה</div>
+    <div class="pal-i"><div class="pal-l">Hebraico · Strong H2451</div><div class="pal-tr">Chokmah — "Sabedoria"</div><div class="pal-h2">Toque para morfologia completa</div></div>
+    <div class="pal-a">›</div>
+  </div>
+  <div class="sec"><div class="sec-t">Começar Agora</div></div>
+  <div class="acoes">
+    <div class="acao d" onclick="ir('s-lab')"><div class="acao-i">🔬</div><div class="acao-t">Laboratório Exegético</div><div class="acao-s">Método OICA completo</div><div class="acao-a">→</div></div>
+    <div class="acao" onclick="ir('s-biblia')"><div class="acao-i">📖</div><div class="acao-t">Bíblia Paralela</div><div class="acao-s">ACF · ARA · NVI</div><div class="acao-a">→</div></div>
+    <div class="acao" onclick="ir('s-desafios')"><div class="acao-i">⚔️</div><div class="acao-t">Desafio do Dia</div><div class="acao-s">Quiz · +50 XP</div><div class="acao-a">→</div></div>
+    <div class="acao" onclick="ir('s-perfil')"><div class="acao-i">🎓</div><div class="acao-t">Meu Certificado</div><div class="acao-s">Nível 1 — 34%</div><div class="acao-a">→</div></div>
+  </div>
+  <div class="sec"><div class="sec-t">Trilhas</div><div class="sec-l" onclick="ir('s-estudos')">Todas →</div></div>
+  <div class="trilhas">
+    <div class="trilha" onclick="t('📖 Trilha Observador!')"><div class="tl-i">👁️</div><div class="tl-nv">Nível 1</div><div class="tl-n">Observador</div><div class="tl-bar"><div class="tl-fill" style="width:34%"></div></div><div class="tl-pct">34%</div></div>
+    <div class="trilha lock"><div class="tl-i">🔍</div><div class="tl-nv">Nível 2</div><div class="tl-n">Investigador</div><div class="tl-bar"><div class="tl-fill" style="width:0"></div></div><div class="tl-pct">🔒</div></div>
+    <div class="trilha lock"><div class="tl-i">🧪</div><div class="tl-nv">Nível 3</div><div class="tl-n">Analista</div><div class="tl-bar"><div class="tl-fill" style="width:0"></div></div><div class="tl-pct">🔒</div></div>
+    <div class="trilha lock"><div class="tl-i">📜</div><div class="tl-nv">Nível 4</div><div class="tl-n">Hermeneuta</div><div class="tl-bar"><div class="tl-fill" style="width:0"></div></div><div class="tl-pct">🔒</div></div>
+    <div class="trilha lock"><div class="tl-i">⭐</div><div class="tl-nv">Nível 5</div><div class="tl-n">Mestre AFIAR</div><div class="tl-bar"><div class="tl-fill" style="width:0"></div></div><div class="tl-pct">🔒</div></div>
+  </div>
+  <div class="sp2"></div>
+</div>
+
+<!-- ESTUDOS -->
+<div class="screen" id="s-estudos">
+  <div class="eh"><div class="eh-t">Estudos</div><div class="eh-s">Percorra as Escrituras com profundidade</div></div>
+  <div class="filtros">
+    <div class="fil on">Todos</div><div class="fil">Exegese</div><div class="fil">Hebraico</div>
+    <div class="fil">Grego</div><div class="fil">Hermenêutica</div><div class="fil">Teologia</div>
+  </div>
+  <div class="sp"></div>
+  <div class="ecard" onclick="t('📖 A Sabedoria em Provérbios')"><div class="eico" style="background:rgba(62,84,56,.1)">📖</div><div class="einf"><div class="ecat">Exegese · AT</div><div class="etit">A Sabedoria em Provérbios</div><div class="edesc">Estudo de חָכְמָה (Chokmah) e aplicação hermenêutica</div><div class="etags"><span class="tag tv">Nível 1</span><span class="tag to">+80 XP</span><span class="tag tt">15 min</span></div></div></div>
+  <div class="ecard" onclick="t('🎵 Gêneros Literários: Salmos')"><div class="eico" style="background:rgba(201,146,42,.1)">🎵</div><div class="einf"><div class="ecat">Hermenêutica · AT</div><div class="etit">Gêneros Literários: Os Salmos</div><div class="edesc">Paralelos, lamentos e hinos na poesia hebraica</div><div class="etags"><span class="tag tv">Nível 2</span><span class="tag to">+120 XP</span><span class="tag tt">22 min</span></div></div></div>
+  <div class="ecard" onclick="t('🇬🇷 Ágape — O Amor Divino')"><div class="eico" style="background:rgba(107,124,69,.1)">🇬🇷</div><div class="einf"><div class="ecat">Grego Bíblico · NT</div><div class="etit">Ἀγάπη — O Amor Divino em João</div><div class="edesc">Morfologia e campo semântico do amor em 1 João</div><div class="etags"><span class="tag tv">Nível 3</span><span class="tag to">+150 XP</span><span class="tag tt">30 min</span></div></div></div>
+  <div class="ecard" onclick="t('🏛️ Isaías: O Grande Profeta')"><div class="eico" style="background:rgba(139,94,60,.1)">🏛️</div><div class="einf"><div class="ecat">Contexto Histórico · AT</div><div class="etit">Isaías: O Grande Profeta</div><div class="edesc">Situação política e religiosa no período neo-assírio</div><div class="etags"><span class="tag tv">Nível 2</span><span class="tag to">+100 XP</span><span class="tag tt">18 min</span></div></div></div>
+  <div class="ecard" onclick="t('א O Alfabeto Hebraico')"><div class="eico" style="background:rgba(62,84,56,.1);font-size:18px">א</div><div class="einf"><div class="ecat">Hebraico Bíblico · Básico</div><div class="etit">O Alfabeto Hebraico</div><div class="edesc">Aleph-Bet: forma, nome, sons e raízes das 22 letras</div><div class="etags"><span class="tag tv">Nível 1</span><span class="tag to">+60 XP</span><span class="tag tt">12 min</span></div></div></div>
+  <div class="sp2"></div>
+</div>
+
+<!-- BÍBLIA PARALELA -->
+<div class="screen" id="s-biblia">
+  <div class="bh"><div class="bh-t">📖 Bíblia Paralela</div><div class="bh-s">ACF · ARA · NVI — Bíblia completa</div></div>
+  <div class="bbusca">
+    <input class="bib-in" id="bin" placeholder="Jo 3:16 · Sl 23:1 · Rm 8:28..."
+      autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="none" inputmode="text"/>
+    <button class="bib-bt" onclick="buscar()">🔍</button>
+  </div>
+
+  <div id="bres"></div>
+
+  <div id="bini">
+    <!-- Status de carregamento -->
+    <div id="bstatus" class="bib-loading">
+      <div class="bib-spinner"></div>
+      Carregando a Bíblia completa...<br>
+      <span style="font-size:11px">ACF · ARA · NVI</span>
+    </div>
+
+    <div id="bconteudo" style="display:none">
+      <div class="fav-sec">
+        <div class="fav-sec-t">Versículos rápidos</div>
+        <div class="fav-grid" id="fgrid"></div>
+      </div>
+      <div class="bib-tabs">
+        <button class="bib-tab on" onclick="vTest('AT',this)">Antigo Testamento</button>
+        <button class="bib-tab" onclick="vTest('NT',this)">Novo Testamento</button>
+      </div>
+      <div class="lgrid" id="lgrid"></div>
+      <div id="csec" style="display:none">
+        <div class="caps-h"><div class="caps-ht" id="ctit">Capítulos</div><div class="caps-bk" onclick="voltarL()">← Livros</div></div>
+        <div class="cgrid" id="cgrid"></div>
+      </div>
+    </div>
+  </div>
+  <div class="sp2"></div>
+</div>
+
+<!-- LABORATÓRIO -->
+<div class="screen" id="s-lab">
+  <div class="lah"><div class="lah-t">🔬 Laboratório Exegético</div><div class="lah-s">Observe · Interprete · Correlacione · Aplique</div></div>
+  <div class="lav"><div class="lav-l">📖 Texto para análise</div><div class="lav-t" id="lavtxt">"Lâmpada para os meus pés é a tua palavra, e luz para o meu caminho."</div><div class="lav-r" id="lavref">Salmo 119:105</div></div>
+  <div class="oicas">
+    <div class="oica"><div class="oh" onclick="tog('O')"><div class="ol">O</div><div class="oi"><div class="on2">Observação</div><div class="od">O que o texto diz? Quem, o quê, quando, onde?</div></div><div class="ock" id="ck-O">✓</div></div><div class="ob open" id="ob-O"><textarea class="ota" id="ta-O" placeholder="Ex: O salmista usa duas metáforas — lâmpada e luz — para descrever a Palavra de Deus..." oninput="ck('O')"></textarea></div></div>
+    <div class="oica"><div class="oh" onclick="tog('I')"><div class="ol">I</div><div class="oi"><div class="on2">Interpretação</div><div class="od">O que o texto significa? Contexto histórico?</div></div><div class="ock" id="ck-I">✓</div></div><div class="ob" id="ob-I"><textarea class="ota" id="ta-I" placeholder="Ex: Em hebraico, נֵר (ner) é uma lamparina de azeite, não uma tocha..." oninput="ck('I')"></textarea></div></div>
+    <div class="oica"><div class="oh" onclick="tog('C')"><div class="ol">C</div><div class="oi"><div class="on2">Correlação</div><div class="od">Como se relaciona com outros textos?</div></div><div class="ock" id="ck-C">✓</div></div><div class="ob" id="ob-C"><textarea class="ota" id="ta-C" placeholder="Ex: Compare com João 1:1-5, Provérbios 6:23, 2 Pedro 1:19..." oninput="ck('C')"></textarea></div></div>
+    <div class="oica"><div class="oh" onclick="tog('A')"><div class="ol">A</div><div class="oi"><div class="on2">Aplicação</div><div class="od">O que isso significa para minha vida hoje?</div></div><div class="ock" id="ck-A">✓</div></div><div class="ob" id="ob-A"><textarea class="ota" id="ta-A" placeholder="Ex: Assim como a lamparina ilumina um passo de cada vez, confiar na Palavra é obediência incremental..." oninput="ck('A')"></textarea></div></div>
+  </div>
+  <button class="lenv" onclick="envLab()">🤖 Enviar para Avaliação da IA</button>
+  <div class="sp2"></div>
+</div>
+
+<!-- DESAFIOS -->
+<div class="screen" id="s-desafios">
+  <div class="deh"><div class="deh-t">⚔️ Desafios</div><div class="deh-s">Teste seus conhecimentos e conquiste medalhas</div></div>
+  <div class="sp2"></div>
+  <div class="dcard" onclick="t('⚡ Desafio do Dia iniciado!')"><div class="dtop"><div class="dico" style="background:rgba(201,146,42,.12)">⚡</div><div class="dinf"><div class="dtipo">Diário · Hoje</div><div class="dtit">Quiz Rápido — Provérbios</div><div class="ddesc">5 perguntas sobre sabedoria bíblica</div></div></div><div class="dfooter"><div class="dxp">⭐ +50 XP</div><button class="dbtn">Iniciar →</button></div></div>
+  <div class="dcard" onclick="t('🇬🇷 Desafio de Grego iniciado!')"><div class="dtop"><div class="dico" style="background:rgba(107,124,69,.12)">🇬🇷</div><div class="dinf"><div class="dtipo">Idiomas · Grego</div><div class="dtit">Morfologia Grega</div><div class="ddesc">Identifique caso, número e gênero de 8 palavras do NT</div></div></div><div class="dfooter"><div class="dxp">⭐ +80 XP</div><button class="dbtn">Iniciar →</button></div></div>
+  <div class="dcard" onclick="t('🏛️ Desafio Histórico iniciado!')"><div class="dtop"><div class="dico" style="background:rgba(139,94,60,.12)">🏛️</div><div class="dinf"><div class="dtipo">Contexto · AT</div><div class="dtit">O Exílio Babilônico</div><div class="ddesc">Datas, reis e profetas do período do cativeiro</div></div></div><div class="dfooter"><div class="dxp">⭐ +100 XP</div><button class="dbtn">Iniciar →</button></div></div>
+  <div class="dcard" onclick="t('א Desafio Hebraico iniciado!')"><div class="dtop"><div class="dico" style="background:rgba(62,84,56,.12);font-size:21px">א</div><div class="dinf"><div class="dtipo">Idiomas · Hebraico</div><div class="dtit">Raízes Hebraicas</div><div class="ddesc">Identifique o shoresh de 10 palavras do AT</div></div></div><div class="dfooter"><div class="dxp">⭐ +120 XP</div><button class="dbtn">Iniciar →</button></div></div>
+  <div class="sp2"></div>
+</div>
+
+<!-- PERFIL -->
+<div class="screen" id="s-perfil">
+  <div class="ph"><div class="pav">MM</div><div class="pnome">Ev. Marcos Monteiro</div><div class="pnv">OBSERVADOR · NÍVEL 1</div><div class="psts"><div class="ps"><div class="psv">340</div><div class="psl">XP Total</div></div><div class="ps"><div class="psv">7</div><div class="psl">Sequência</div></div><div class="ps"><div class="psv">12</div><div class="psl">Estudos</div></div></div></div>
+  <div class="psec" style="margin-top:14px"><div class="psect">Conquistas</div><div class="meds"><div class="med"><div class="med-i">🔥</div><div class="med-n">7 dias seguidos</div></div><div class="med"><div class="med-i">📖</div><div class="med-n">1º Estudo</div></div><div class="med"><div class="med-i">🔬</div><div class="med-n">Lab. Exegético</div></div><div class="med lock"><div class="med-i">🇬🇷</div><div class="med-n">Aluno Grego</div></div><div class="med lock"><div class="med-i">א</div><div class="med-n">Hebraico</div></div><div class="med lock"><div class="med-i">🏆</div><div class="med-n">Mestre AFIAR</div></div><div class="med lock"><div class="med-i">📜</div><div class="med-n">Certificado</div></div><div class="med lock"><div class="med-i">⭐</div><div class="med-n">100 dias</div></div></div></div>
+  <div class="psec" style="margin-top:16px"><div class="psect">Minha Conta</div>
+    <div class="pmitem" onclick="t('📜 Certificados em breve!')"><div class="pmi-i">🎓</div><div class="pmi-f"><div class="pmi-t">Meus Certificados</div><div class="pmi-s">1 disponível ao concluir Nível 1</div></div><div class="pmi-a">›</div></div>
+    <div class="pmitem" onclick="t('📓 Diário em breve!')"><div class="pmi-i">📓</div><div class="pmi-f"><div class="pmi-t">Diário Espiritual</div><div class="pmi-s">7 registros feitos</div></div><div class="pmi-a">›</div></div>
+    <div class="pmitem" onclick="t('⭐ Plano Premium em breve!')"><div class="pmi-i">⭐</div><div class="pmi-f"><div class="pmi-t">Plano Premium</div><div class="pmi-s">Hebraico, Grego e Tutor IA</div></div><div class="pmi-a">›</div></div>
+    <div class="pmitem" onclick="t('🏫 Painel Professor em breve!')"><div class="pmi-i">🏫</div><div class="pmi-f"><div class="pmi-t">Painel Professor</div><div class="pmi-s">Quiz, avaliações e turmas</div></div><div class="pmi-a">›</div></div>
+  </div>
+  <div style="padding:20px 14px;text-align:center"><div style="font-family:'Lora',serif;font-size:11px;font-style:italic;color:#bbb;line-height:1.7">"Afiando a mente para compreender as Escrituras."<br><span style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--be)">AFIAR · Ev. Marcos Monteiro</span></div></div>
+  <div class="sp2"></div>
+</div>
+
+<!-- NAVBAR -->
+<nav id="nav">
+  <div class="nbar" id="nbar"></div>
+  <button class="nb on" onclick="ir('s-home')" id="nb-home"><span class="nbi">🏠</span><span class="nbl">Home</span></button>
+  <button class="nb" onclick="ir('s-estudos')" id="nb-estudos"><span class="nbi">📚</span><span class="nbl">Estudos</span></button>
+  <button class="nb" onclick="ir('s-biblia')" id="nb-biblia"><span class="nbi">📖</span><span class="nbl">Bíblia</span></button>
+  <button class="nb" onclick="ir('s-lab')" id="nb-lab"><span class="nbi">🔬</span><span class="nbl">Lab.</span></button>
+  <button class="nb" onclick="ir('s-desafios')" id="nb-desafios"><span class="nbi">⚔️</span><span class="nbl">Desafios</span></button>
+  <button class="nb" onclick="ir('s-perfil')" id="nb-perfil"><span class="nbi">👤</span><span class="nbl">Perfil</span></button>
+</nav>
+</div>
+
+<!-- SHEET PALAVRA -->
+<div class="sbg" id="sbg" onclick="fSheet()">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sgrip"></div>
+    <div class="st">Palavra Original do Dia</div>
+    <div class="ss">Hebraico Bíblico · Strong H2451</div>
+    <div class="hbox"><div class="hletra">חָכְמָה</div><div class="htr">Chokmah</div><div class="hpron">/ xok-MAH /</div></div>
+    <div class="igrid">
+      <div class="icard"><div class="ilabel">Strong</div><div class="ival">H2451</div></div>
+      <div class="icard"><div class="ilabel">Raiz (Shoresh)</div><div class="ival">חָכַם (chakam)</div></div>
+      <div class="icard"><div class="ilabel">Classe gramatical</div><div class="ival">Substantivo feminino</div></div>
+      <div class="icard"><div class="ilabel">Ocorrências AT</div><div class="ival">149 vezes</div></div>
+      <div class="icard" style="grid-column:1/-1"><div class="ilabel">Campo semântico</div><div class="ival">Sabedoria prática, habilidade técnica, discernimento moral orientado a Deus</div></div>
+      <div class="icard" style="grid-column:1/-1"><div class="ilabel">Referências principais</div><div class="ival">Pv 1:2 · Pv 2:6 · Jó 28:28 · Ec 1:13 · 1Rs 5:12</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// DADOS DA BÍBLIA
+// ════════════════════════════════════════
+var DB = {acf:null, nvi:null, ara:null};  // carregados via fetch
+var DB_OK = false;
+
+// Substituições ACF → ARA
+var SUBS_ARA = [
+  ['contribuem juntamente','cooperam'],['contribuem','cooperam'],
+  ['todo aquele que nele crê','todo o que nele crê'],
+  ['redarguir','repreensão'],['redargüir','repreensão'],
+  ['proveitosa para ensinar','útil para o ensino'],
+  ['para redarguir,','para a repreensão,'],['para corrigir,','para a correção,'],
+  ['para instruir em justiça','para a instrução na justiça'],
+  ['o firme fundamento','a certeza'],
+  ['e a prova das coisas que não se veem','e a convicção de fatos que não se veem'],
+  ['renovarão as forças','renovam as suas forças'],
+  ['subirão com asas','sobem com asas'],
+  ['correrão e não se cansarão','correm e não se cansam'],
+  ['caminharão e não se fatigarão','caminham e não se fatigam'],
+  ['para o meu caminho','para os meus caminhos'],
+  ['nada me faltará','de nada me faltará'],
+  ['não te estribes no teu próprio entendimento','não te apoies no teu próprio entendimento'],
+  ['vêm a ciência e o entendimento','procedem o conhecimento e o entendimento'],
+  ['os que esperam no Senhor','os que esperam no SENHOR'],
+  ['o Senhor dá a sabedoria','o SENHOR dá a sabedoria'],
+];
+
+function ara(txt) {
+  SUBS_ARA.forEach(function(p){ txt = txt.split(p[0]).join(p[1]); });
+  return txt;
+}
+
+// Favoritos
+var FAVS = [
+  {k:'jo 3:16',l:'Jo 3:16',p:'Porque Deus amou o mundo...'},
+  {k:'sl 23:1',l:'Sl 23:1',p:'O SENHOR é o meu pastor...'},
+  {k:'rm 8:28',l:'Rm 8:28',p:'Todas as coisas cooperam para o bem...'},
+  {k:'fp 4:13',l:'Fp 4:13',p:'Posso tudo em Cristo que me fortalece...'},
+  {k:'pv 2:6', l:'Pv 2:6', p:'O SENHOR dá a sabedoria...'},
+  {k:'hb 11:1',l:'Hb 11:1',p:'A fé é o firme fundamento...'},
+  {k:'ef 2:8', l:'Ef 2:8', p:'Pela graça sois salvos...'},
+  {k:'is 40:31',l:'Is 40:31',p:'Os que esperam no SENHOR...'},
+  {k:'jr 29:11',l:'Jr 29:11',p:'Eu sei os planos que tenho...'},
+  {k:'2tm 3:16',l:'2Tm 3:16',p:'Toda Escritura é divinamente inspirada...'},
+  {k:'sl 1:1', l:'Sl 1:1', p:'Bem-aventurado o homem...'},
+  {k:'gn 1:1', l:'Gn 1:1', p:'No princípio criou Deus...'}
+];
+
+var LIVROS = {
+  AT:[{s:'gn',n:'Gênesis',c:50},{s:'ex',n:'Êxodo',c:40},{s:'lv',n:'Levítico',c:27},{s:'nm',n:'Números',c:36},{s:'dt',n:'Deuteronômio',c:34},{s:'js',n:'Josué',c:24},{s:'jz',n:'Juízes',c:21},{s:'rt',n:'Rute',c:4},{s:'1sm',n:'1 Samuel',c:31},{s:'2sm',n:'2 Samuel',c:24},{s:'1rs',n:'1 Reis',c:22},{s:'2rs',n:'2 Reis',c:25},{s:'1cr',n:'1 Crônicas',c:29},{s:'2cr',n:'2 Crônicas',c:36},{s:'ed',n:'Esdras',c:10},{s:'ne',n:'Neemias',c:13},{s:'et',n:'Ester',c:10},{s:'jó',n:'Jó',c:42},{s:'sl',n:'Salmos',c:150},{s:'pv',n:'Provérbios',c:31},{s:'ec',n:'Eclesiastes',c:12},{s:'ct',n:'Cânticos',c:8},{s:'is',n:'Isaías',c:66},{s:'jr',n:'Jeremias',c:52},{s:'lm',n:'Lamentações',c:5},{s:'ez',n:'Ezequiel',c:48},{s:'dn',n:'Daniel',c:12},{s:'os',n:'Oséias',c:14},{s:'jl',n:'Joel',c:3},{s:'am',n:'Amós',c:9},{s:'ob',n:'Obadias',c:1},{s:'jn',n:'Jonas',c:4},{s:'mq',n:'Miquéias',c:7},{s:'na',n:'Naum',c:3},{s:'hc',n:'Habacuque',c:3},{s:'sf',n:'Sofonias',c:3},{s:'ag',n:'Ageu',c:2},{s:'zc',n:'Zacarias',c:14},{s:'ml',n:'Malaquias',c:4}],
+  NT:[{s:'mt',n:'Mateus',c:28},{s:'mc',n:'Marcos',c:16},{s:'lc',n:'Lucas',c:24},{s:'jo',n:'João',c:21},{s:'at',n:'Atos',c:28},{s:'rm',n:'Romanos',c:16},{s:'1co',n:'1 Coríntios',c:16},{s:'2co',n:'2 Coríntios',c:13},{s:'gl',n:'Gálatas',c:6},{s:'ef',n:'Efésios',c:6},{s:'fp',n:'Filipenses',c:4},{s:'cl',n:'Colossenses',c:4},{s:'1ts',n:'1 Tessalonicenses',c:5},{s:'2ts',n:'2 Tessalonicenses',c:3},{s:'1tm',n:'1 Timóteo',c:6},{s:'2tm',n:'2 Timóteo',c:4},{s:'tt',n:'Tito',c:3},{s:'fm',n:'Filemom',c:1},{s:'hb',n:'Hebreus',c:13},{s:'tg',n:'Tiago',c:5},{s:'1pe',n:'1 Pedro',c:5},{s:'2pe',n:'2 Pedro',c:3},{s:'1jo',n:'1 João',c:5},{s:'2jo',n:'2 João',c:1},{s:'3jo',n:'3 João',c:1},{s:'jd',n:'Judas',c:1},{s:'ap',n:'Apocalipse',c:22}]
+};
+
+// Mapa de abrev dos JSONs do repo → chave do app
+var ABMAP = {
+  'jó':'jó','jo':'jo'  // João e Jó têm abrevs distintas, manter igual
+};
+
+// ════════════════════════════════════════
+// CARREGAR BÍBLIA DO GITHUB
+// ════════════════════════════════════════
+var BASE = 'https://raw.githubusercontent.com/thiagobodruk/biblia/master/json/';
+
+function indexar(raw) {
+  var idx = {};
+  raw.forEach(function(livro) {
+    var ab = livro.abbrev.toLowerCase();
+    idx[ab] = {name: livro.name || '', caps: livro.chapters || []};
+  });
+  return idx;
+}
+
+function carregarBiblia() {
+  var status = document.getElementById('bstatus');
+  status.innerHTML = '<div class="bib-spinner"></div>Carregando ACF e NVI...<br><span style="font-size:11px">Bíblia completa — 31.102 versículos</span>';
+
+  Promise.all([
+    fetch(BASE + 'acf.json').then(function(r){ return r.json(); }),
+    fetch(BASE + 'nvi.json').then(function(r){ return r.json(); })
+  ]).then(function(results) {
+    DB.acf = indexar(results[0]);
+    DB.nvi = indexar(results[1]);
+    // Gerar ARA derivada da ACF
+    DB.ara = {};
+    Object.keys(DB.acf).forEach(function(ab) {
+      DB.ara[ab] = {
+        name: DB.acf[ab].name,
+        caps: DB.acf[ab].caps.map(function(cap) {
+          return cap.map(function(v) { return ara(v); });
+        })
+      };
+    });
+    DB_OK = true;
+    document.getElementById('bstatus').style.display = 'none';
+    document.getElementById('bconteudo').style.display = '';
+    initFavs();
+    renderLivros();
+    t('✅ Bíblia carregada — 66 livros!');
+  }).catch(function(err) {
+    status.innerHTML = '<div style="font-size:28px;margin-bottom:10px">⚠️</div>' +
+      'Não foi possível carregar a Bíblia.<br>' +
+      '<span style="font-size:11px">Verifique sua conexão e recarregue a página.</span><br><br>' +
+      '<div onclick="carregarBiblia()" style="display:inline-block;padding:9px 20px;background:var(--vd);color:var(--oc);border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;font-family:Cinzel,serif">🔄 Tentar novamente</div>';
+  });
+}
+
+// ════════════════════════════════════════
+// BUSCAR VERSÍCULO
+// ════════════════════════════════════════
+var LIVRO_AT = null;
+var TEST_AT = 'AT';
+
+function pegar(db, ab, cap, ver) {
+  try { return db[ab].caps[cap-1][ver-1] || null; }
+  catch(e) { return null; }
+}
+
+function parseRef(input) {
+  // Formatos: "jo 3:16", "Jo 3:16", "João 3:16", "sl23:1", "Sl 23 1"
+  var s = input.trim().toLowerCase()
+    .replace(/[^a-záàãâéêíóôõúç0-9:\s]/g,'')
+    .replace(/\s+/g,' ');
+
+  // Normalizar nomes por extenso
+  var nomes = {
+    'gênesis':'gn','genesis':'gn','êxodo':'ex','exodo':'ex','levítico':'lv','levitico':'lv',
+    'números':'nm','numeros':'nm','deuteronômio':'dt','deuteronomio':'dt','josué':'js','josue':'js',
+    'juízes':'jz','juizes':'jz','rute':'rt','samuel':'sm','reis':'rs','crônicas':'cr','cronicas':'cr',
+    'esdras':'ed','neemias':'ne','ester':'et','salmos':'sl','salmo':'sl','provérbios':'pv',
+    'proverbios':'pv','eclesiastes':'ec','cânticos':'ct','canticos':'ct','isaías':'is','isaias':'is',
+    'jeremias':'jr','lamentações':'lm','lamentacoes':'lm','ezequiel':'ez','daniel':'dn',
+    'oséias':'os','oseias':'os','joel':'jl','amós':'am','amos':'am','obadias':'ob','jonas':'jn',
+    'miquéias':'mq','miqueias':'mq','naum':'na','habacuque':'hc','sofonias':'sf','ageu':'ag',
+    'zacarias':'zc','malaquias':'ml',
+    'mateus':'mt','marcos':'mc','lucas':'lc','joão':'jo','joao':'jo','atos':'at','romanos':'rm',
+    'gálatas':'gl','galatas':'gl','efésios':'ef','efesios':'ef','filipenses':'fp','colossenses':'cl',
+    'tessalonicenses':'ts','timóteo':'tm','timoteo':'tm','tito':'tt','filemom':'fm','hebreus':'hb',
+    'tiago':'tg','pedro':'pe','judas':'jd','apocalipse':'ap'
+  };
+
+  for (var nome in nomes) {
+    if (s.indexOf(nome) === 0) {
+      s = s.replace(nome, nomes[nome]);
+      break;
+    }
+  }
+
+  // Extrair: sigla cap:ver ou sigla cap ver
+  var m = s.match(/^([1-3]?[a-záàãâéêíóôõúç]+)\s*(\d+)[:\s](\d+)/);
+  if (m) return {ab: m[1], cap: parseInt(m[2]), ver: parseInt(m[3])};
+  return null;
+}
+
+function bRef(ref) {
+  document.getElementById('bin').value = ref;
+  buscar();
+  document.getElementById('s-biblia').scrollTop = 0;
+}
+
+function buscar() {
+  var v = document.getElementById('bin').value.trim();
+  if (!v) { t('✍️ Digite uma referência, ex: jo 3:16'); return; }
+
+  if (!DB_OK) {
+    t('⏳ Aguarde — Bíblia ainda carregando...');
+    return;
+  }
+
+  var ref = parseRef(v);
+  if (!ref) { t('❌ Referência inválida. Tente: jo 3:16'); return; }
+
+  var ta = pegar(DB.acf, ref.ab, ref.cap, ref.ver);
+  if (!ta) { t('❌ Não encontrado: ' + v); return; }
+
+  var tn = pegar(DB.nvi, ref.ab, ref.cap, ref.ver);
+  var tara = pegar(DB.ara, ref.ab, ref.cap, ref.ver);
+  var nome = DB.acf[ref.ab].name;
+
+  mostrarParalela({
+    ref: nome + ' ' + ref.cap + ':' + ref.ver,
+    ab: ref.ab, cap: ref.cap, ver: ref.ver,
+    acf: ta, ara: tara || ta, nvi: tn || ta
+  });
+}
+
+function mostrarParalela(d) {
+  document.getElementById('bres').innerHTML = renderP(d);
+  document.getElementById('bini').style.display = 'none';
+  document.getElementById('s-biblia').scrollTop = 0;
+}
+
+function renderP(d) {
+  var diff = '';
+  if (d.acf !== d.nvi) diff = 'A NVI usa linguagem contemporânea; a ACF preserva o estilo clássico. A ARA moderniza pontualmente a ACF. Compare as escolhas para aprofundar a exegese.';
+  else diff = 'As versões concordam neste versículo com variações mínimas de estilo.';
+
+  // Nav versículo anterior/próximo
+  var verAnt = d.ver > 1 ? d.ver-1 : null;
+  var verProx = pegar(DB.acf, d.ab, d.cap, d.ver+1) ? d.ver+1 : null;
+  var navHtml = '<div class="vnav">';
+  navHtml += verAnt ? '<div class="vnav-btn" onclick="navVer('+verAnt+')">◀ v.'+(verAnt)+'</div>' : '<div class="vnav-btn" style="opacity:.3">◀</div>';
+  navHtml += '<div class="vnav-ref">'+d.ref+'</div>';
+  navHtml += verProx ? '<div class="vnav-btn" onclick="navVer('+verProx+')">v.'+(verProx)+' ▶</div>' : '<div class="vnav-btn" style="opacity:.3">▶</div>';
+  navHtml += '</div>';
+
+  return '<div class="pres">' +
+    '<div class="pref"><div class="pref-t">'+d.ref+'</div><div class="pref-s">ACF · ARA · NVI — Paralela</div></div>' +
+    '<div class="pacoes">' +
+      '<div class="pbtn" onclick="copiarTodas()">📋 Copiar</div>' +
+      '<div class="pbtn" onclick="labEnv()">🔬 Lab.</div>' +
+      '<div class="pbtn" onclick="voltarI()">← Voltar</div>' +
+    '</div>' +
+    cV('ACF','acf','Almeida Corrigida Fiel',d.acf) +
+    cV('ARA','ara','Almeida Revista e Atualizada',d.ara) +
+    cV('NVI','nvi','Nova Versão Internacional',d.nvi) +
+    '<div class="dbox"><div class="dt">🔍 Diferenças entre versões</div><div class="dd">'+diff+'</div></div>' +
+    navHtml +
+    '</div>';
+}
+
+function cV(sig, cls, nome, txt) {
+  var e = txt.replace(/'/g,"&#39;").replace(/"/g,'&quot;');
+  return '<div class="vcard"><div class="vh"><span class="vbadge '+cls+'">'+sig+'</span><span class="vnome">'+nome+'</span><button class="vcopy" onclick="cp(\''+e+'\')" title="Copiar">📋</button></div><div class="vtxt">'+txt+'</div></div>';
+}
+
+var REFATUAL = null;
+function navVer(ver) {
+  if (!REFATUAL) return;
+  var v = REFATUAL.ab+' '+REFATUAL.cap+':'+ver;
+  document.getElementById('bin').value = v;
+  buscar();
+  // Guardar ref atual
+  REFATUAL.ver = ver;
+}
+
+// Armazenar ref atual para navegação
+var _buscarOrig = buscar;
+buscar = function() {
+  _buscarOrig();
+  if (DB_OK) {
+    var ref = parseRef(document.getElementById('bin').value);
+    if (ref) REFATUAL = ref;
+  }
+};
+
+function cp(txt) {
+  if (navigator.clipboard) { navigator.clipboard.writeText(txt).then(function(){ t('📋 Copiado!'); }); }
+  else { t('📋 Pressione e segure o texto para copiar'); }
+}
+
+function copiarTodas() {
+  var v = document.getElementById('bin').value.trim();
+  var ref = parseRef(v);
+  if (!ref || !DB_OK) return;
+  var ta = pegar(DB.acf,ref.ab,ref.cap,ref.ver);
+  var tn = pegar(DB.nvi,ref.ab,ref.cap,ref.ver);
+  var tar = pegar(DB.ara,ref.ab,ref.cap,ref.ver);
+  var nome = DB.acf[ref.ab]?DB.acf[ref.ab].name:'';
+  var refStr = nome+' '+ref.cap+':'+ref.ver;
+  cp(refStr+'\n\nACF: '+ta+'\n\nARA: '+(tar||ta)+'\n\nNVI: '+(tn||ta));
+  t('📋 Todas as versões copiadas!');
+}
+
+function labEnv() {
+  var v = document.getElementById('bin').value.trim();
+  var ref = parseRef(v);
+  if (ref && DB_OK) {
+    var ta = pegar(DB.acf,ref.ab,ref.cap,ref.ver);
+    var nome = DB.acf[ref.ab]?DB.acf[ref.ab].name:'';
+    if (ta) {
+      document.getElementById('lavtxt').textContent = '"'+ta+'"';
+      document.getElementById('lavref').textContent = nome+' '+ref.cap+':'+ref.ver;
+      ir('s-lab');
+      t('🔬 Versículo enviado ao Laboratório!');
+    }
+  }
+}
+
+function voltarI() {
+  document.getElementById('bres').innerHTML = '';
+  document.getElementById('bini').style.display = '';
+  document.getElementById('bin').value = '';
+  REFATUAL = null;
+}
+
+// FAVORITOS
+function initFavs() {
+  document.getElementById('fgrid').innerHTML = FAVS.map(function(f){
+    return '<div class="fav" onclick="bRef(\''+f.k+'\')">' +
+      '<div class="fav-r">'+f.l+'</div><div class="fav-p">'+f.p+'</div></div>';
+  }).join('');
+}
+
+// LIVROS
+function vTest(t2, btn) {
+  TEST_AT = t2;
+  document.querySelectorAll('.bib-tab').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+  renderLivros();
+  document.getElementById('csec').style.display = 'none';
+}
+
+function renderLivros() {
+  document.getElementById('lgrid').innerHTML = LIVROS[TEST_AT].map(function(l){
+    var nn = l.n.length > 8 ? l.n.substring(0,8)+'…' : l.n;
+    return '<div class="lbtn" onclick="esLivro(this,\''+l.s+'\',\''+l.n+'\','+l.c+')">' +
+      '<div class="lsig">'+l.s+'</div><div class="lnm">'+nn+'</div></div>';
+  }).join('');
+}
+
+function esLivro(el, s, n, c) {
+  document.querySelectorAll('.lbtn').forEach(function(b){ b.classList.remove('on'); });
+  el.classList.add('on');
+  LIVRO_AT = {s:s, n:n, c:c};
+  document.getElementById('ctit').textContent = n;
+  document.getElementById('cgrid').innerHTML = Array.from({length:c},function(_,i){
+    return '<div class="cbtn" onclick="esCap(this,'+(i+1)+')">'+(i+1)+'</div>';
+  }).join('');
+  var cs = document.getElementById('csec');
+  cs.style.display = '';
+  setTimeout(function(){ cs.scrollIntoView({behavior:'smooth',block:'start'}); }, 80);
+}
+
+function esCap(el, cap) {
+  document.querySelectorAll('.cbtn').forEach(function(b){ b.classList.remove('on'); });
+  el.classList.add('on');
+  var ref = LIVRO_AT.s + ' ' + cap + ':1';
+  document.getElementById('bin').value = ref;
+  if (DB_OK) buscar();
+  else t('⏳ Bíblia ainda carregando...');
+}
+
+function voltarL() {
+  document.getElementById('csec').style.display = 'none';
+  document.querySelectorAll('.lbtn').forEach(function(b){ b.classList.remove('on'); });
+}
+
+// ════════════════════════════════════════
+// IMAGENS
+// ════════════════════════════════════════
+var HI = [
+  'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=800&q=75',
+  'https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=800&q=75',
+  'https://images.unsplash.com/photo-1465311354728-e2b3a0b27d7b?w=800&q=75'
+];
+var hi = 0;
+function mH(i) {
+  hi = i;
+  document.getElementById('hbg').style.backgroundImage = "url('"+HI[i]+"')";
+  document.querySelectorAll('.dot').forEach(function(d,j){ d.classList.toggle('on',j===i); });
+}
+
+// ════════════════════════════════════════
+// NAVEGAÇÃO
+// ════════════════════════════════════════
+var TELAS = ['home','estudos','biblia','lab','desafios','perfil'];
+function ir(id) {
+  TELAS.forEach(function(x){
+    var s = document.getElementById('s-'+x);
+    var b = document.getElementById('nb-'+x);
+    if(s) s.classList.remove('active');
+    if(b) b.classList.remove('on');
+  });
+  var tela = id.replace('s-','');
+  var el = document.getElementById(id);
+  if(el){ el.classList.add('active'); el.scrollTop = 0; }
+  var nb = document.getElementById('nb-'+tela);
+  if(nb) nb.classList.add('on');
+  var idx = TELAS.indexOf(tela);
+  var p = 100/TELAS.length;
+  var bar = document.getElementById('nbar');
+  bar.style.left = (idx*p)+'%'; bar.style.width = p+'%';
+}
+
+// SWIPE
+var swX = 0;
+document.getElementById('app').addEventListener('touchstart', function(e){ swX = e.touches[0].clientX; },{passive:true});
+document.getElementById('app').addEventListener('touchend', function(e){
+  var dx = e.changedTouches[0].clientX - swX;
+  var cur = TELAS.findIndex(function(x){ return document.getElementById('s-'+x).classList.contains('active'); });
+  if(Math.abs(dx) > 55){
+    if(dx < 0 && cur < TELAS.length-1) ir('s-'+TELAS[cur+1]);
+    if(dx > 0 && cur > 0) ir('s-'+TELAS[cur-1]);
+  }
+},{passive:true});
+
+// ════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════
+var TT;
+function t(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('on');
+  clearTimeout(TT);
+  TT = setTimeout(function(){ el.classList.remove('on'); }, 2600);
+}
+
+// ════════════════════════════════════════
+// LAB OICA
+// ════════════════════════════════════════
+function tog(l) {
+  var b = document.getElementById('ob-'+l);
+  b.classList.toggle('open');
+  if(b.classList.contains('open')) setTimeout(function(){ document.getElementById('ta-'+l).focus(); }, 280);
+}
+function ck(l) {
+  var ok = document.getElementById('ta-'+l).value.trim().length > 15;
+  document.getElementById('ck-'+l).classList.toggle('ok', ok);
+}
+function envLab() {
+  var p = ['O','I','C','A'].filter(function(l){ return document.getElementById('ta-'+l).value.trim().length > 10; }).length;
+  if(p < 2){ t('✍️ Preencha ao menos 2 etapas antes de avaliar'); return; }
+  t('🤖 Analisando sua exegese...');
+  setTimeout(function(){ t('✅ Análise concluída! +150 XP conquistados!'); }, 2500);
+}
+
+// ════════════════════════════════════════
+// SHEET PALAVRA
+// ════════════════════════════════════════
+function abrirPal() { document.getElementById('sbg').classList.add('on'); }
+function fSheet() { document.getElementById('sbg').classList.remove('on'); }
+
+// ════════════════════════════════════════
+// FILTROS
+// ════════════════════════════════════════
+document.querySelectorAll('.fil').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('.fil').forEach(function(x){ x.classList.remove('on'); });
+    this.classList.add('on');
+  });
+});
+
+// ENTER no campo
+document.getElementById('bin').addEventListener('keydown', function(e){
+  if(e.key === 'Enter'){ this.blur(); buscar(); }
+});
+
+// ════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════
+window.addEventListener('load', function(){
+  mH(0);
+  document.getElementById('vcbg').style.backgroundImage = "url('https://images.unsplash.com/photo-1476611338391-6f395a0dd82e?w=800&q=75')";
+  ir('s-home');
+  // Carregar Bíblia em background
+  carregarBiblia();
+  setTimeout(function(){ document.getElementById('splash').classList.add('off'); }, 2400);
+  setTimeout(function(){
+    setInterval(function(){ hi = (hi+1)%HI.length; mH(hi); }, 5000);
+  }, 3000);
+});
+</script>
+</body>
+</html>
